@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Emergency Alert</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --red: #c0392b;
+    --orange: #e67e22;
+    --yellow: #f1c40f;
+    --alert-bg: #f8d7da;
+    --alert-border: #f5c6cb;
+    --text-dark: #1a1a1a;
+    --text-mid: #333;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+
+  /* PHONE SCREEN WRAPPER */
+  .phone-screen {
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(160deg, #8b0000 0%, #3d0000 40%, #1a0000 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    font-family: -apple-system, 'Helvetica Neue', sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Dark red dramatic bg overlay */
+  .phone-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(200,0,0,0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(255,80,0,0.15) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px 6px;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    position: relative;
+    z-index: 10;
+  }
+
+  .status-time { font-size: 16px; font-weight: 700; }
+
+  .status-icons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  /* LOCK SCREEN DATE/TIME */
+  .lockscreen-info {
+    text-align: center;
+    color: white;
+    margin-top: 18px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .lock-day {
+    font-size: clamp(14px, 3.5vw, 20px);
+    font-weight: 400;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+    text-transform: uppercase;
+  }
+
+  .lock-time {
+    font-size: clamp(64px, 18vw, 110px);
+    font-weight: 200;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-shadow: 0 0 40px rgba(255,100,100,0.4);
+  }
+
+  /* ALERT CARD */
+  .alert-card {
+    background: rgba(248, 215, 218, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 18px;
+    margin: 20px 16px 0;
+    padding: 16px 18px;
+    width: calc(100% - 32px);
+    max-width: 480px;
+    position: relative;
+    z-index: 10;
+    border: 1.5px solid rgba(200,50,50,0.3);
+    box-shadow: 0 8px 32px rgba(180,0,0,0.35), 0 2px 8px rgba(0,0,0,0.3);
+    animation: alertSlideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both,
+               alertPulse 2.5s ease-in-out 0.6s infinite;
+  }
+
+  @keyframes alertSlideIn {
+    from { opacity: 0; transform: translateY(30px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes alertPulse {
+    0%, 100% { box-shadow: 0 8px 32px rgba(180,0,0,0.35), 0 2px 8px rgba(0,0,0,0.3); }
+    50%       { box-shadow: 0 8px 48px rgba(220,0,0,0.55), 0 2px 8px rgba(0,0,0,0.3); }
+  }
+
+  .alert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+
+  .alert-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .alert-icon {
+    width: 42px;
+    height: 42px;
+    background: #f1c40f;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(200,150,0,0.4);
+    animation: iconFlash 1.5s ease-in-out 0.6s infinite;
+  }
+
+  @keyframes iconFlash {
+    0%, 100% { background: #f1c40f; }
+    50%       { background: #e67e22; }
+  }
+
+  .alert-title-block { display: flex; flex-direction: column; }
+
+  .alert-label {
+    font-size: clamp(11px, 2.5vw, 13px);
+    font-weight: 700;
+    color: #c0392b;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .alert-title {
+    font-size: clamp(18px, 5vw, 24px);
+    font-weight: 800;
+    color: #7b0000;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .alert-time {
+    font-size: clamp(10px, 2.5vw, 12px);
+    color: #888;
+    font-weight: 500;
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  .alert-divider {
+    height: 1px;
+    background: rgba(180,0,0,0.15);
+    margin: 10px 0;
+  }
+
+  .alert-body {
+    font-size: clamp(12px, 3.2vw, 15px);
+    font-weight: 500;
+    color: #1a1a1a;
+    line-height: 1.55;
+  }
+
+  .alert-source {
+    margin-top: 10px;
+    font-size: clamp(11px, 2.5vw, 13px);
+    color: #c0392b;
+    font-weight: 700;
+    text-align: right;
+    letter-spacing: 0.02em;
+  }
+
+  /* FLASH OVERLAY for drama */
+  .flash-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(200,0,0,0.08);
+    pointer-events: none;
+    animation: screenFlash 2.5s ease-in-out 0.6s infinite;
+    z-index: 5;
+  }
+
+  @keyframes screenFlash {
+    0%, 100% { opacity: 0; }
+    50%       { opacity: 1; }
+  }
+
+  /* BOTTOM HINT (swipe) */
+  .swipe-hint {
+    position: absolute;
+    bottom: clamp(18px, 5vw, 32px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    max-width: 140px;
+    height: 5px;
+    background: rgba(255,255,255,0.35);
+    border-radius: 100px;
+    z-index: 10;
+  }
+</style>
+</head>
+<body>
+<div class="phone-screen">
+
+  <div class="flash-overlay"></div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <span class="status-time">9:41</span>
+    <div class="status-icons">
+     <span class="status-bar">
+      <span class="signal">AIS</span>
+  <span class="signal">📶</span>
+  <span class="battery">
+    <span class="icon">🔋</span>
+    <span class="percent">33%</span>
+</span>
+    </div>
+  </div>
+
+  <!-- DATE & TIME -->
+  <div class="lockscreen-info">
+    <div class="lock-day">Thursday, August 8</div>
+    <div class="lock-time">9:41</div>
+  </div>
+
+  <!-- ALERT CARD -->
+  <div class="alert-card">
+    <div class="alert-header">
+      <div class="alert-left">
+        <div class="alert-icon">⚠️</div>
+        <div class="alert-title-block">
+          <span class="alert-label">Emergency Alert</span>
+          <span class="alert-title">STORM WARNING</span>
+        </div>
+      </div>
+      <span class="alert-time">now</span>
+    </div>
+
+    <div class="alert-divider"></div>
+
+    <div class="alert-body">
+      SEVERE STORM WARNING in this area. Dangerous conditions expected with strong winds, heavy rain, and possible flooding. Move indoors immediately and stay away from windows. If you are outdoors, seek shelter in a sturdy building now. Avoid floodwaters — do not attempt to cross flooded roads. Conditions may deteriorate rapidly. Stay alert for further instructions.
+    </div>
+
+    <div class="alert-source">— National Weather Service</div>
+  </div>
+
+  <div class="swipe-hint"></div>
+</div>
+</body>
+</html>
